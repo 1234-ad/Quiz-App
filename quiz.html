@@ -1,0 +1,73 @@
+<!-- quiz.html -->
+ <!DOCTYPE html>
+<html>
+<head>
+    <title>Quiz</title>
+    <style>
+        .question { display: none; }
+        .active { display: block; }
+    </style>
+</head>
+<body>
+    <h2>Quiz</h2>
+    <form id="quizForm" method="POST" action="/submit">
+        {% for q in questions %}
+        <div class="question" id="q{{ loop.index }}">
+            <h3>Q{{ loop.index }}: {{ q[1] }}</h3>
+            <label><input type="radio" name="{{ q[0] }}" value="A"> {{ q[2] }}</label><br>
+            <label><input type="radio" name="{{ q[0] }}" value="B"> {{ q[3] }}</label><br>
+            <label><input type="radio" name="{{ q[0] }}" value="C"> {{ q[4] }}</label><br>
+            <label><input type="radio" name="{{ q[0] }}" value="D"> {{ q[5] }}</label><br><br>
+        </div>
+        {% endfor %}
+        <button type="button" onclick="prevQuestion()">Previous</button>
+        <button type="button" onclick="nextQuestion()">Next</button>
+        <button type="submit">Submit Quiz</button>
+    </form>
+
+    <p>Time left: <span id="timer">30</span> seconds</p>
+
+    <script>
+        let current = 1;
+        let total = {{ questions|length }};
+        let timer = 30;
+        let interval;
+
+        function showQuestion(num) {
+            document.querySelectorAll('.question').forEach(q => q.classList.remove('active'));
+            document.getElementById('q' + num).classList.add('active');
+            timer = 30;
+            document.getElementById('timer').innerText = timer;
+            clearInterval(interval);
+            interval = setInterval(countdown, 1000);
+        }
+
+        function countdown() {
+            timer--;
+            document.getElementById('timer').innerText = timer;
+            if (timer === 0) {
+                nextQuestion();
+            }
+        }
+
+        function nextQuestion() {
+            if (current < total) {
+                current++;
+                showQuestion(current);
+            } else {
+                clearInterval(interval);
+                document.getElementById('quizForm').submit();
+            }
+        }
+
+        function prevQuestion() {
+            if (current > 1) {
+                current--;
+                showQuestion(current);
+            }
+        }
+
+        showQuestion(current);
+    </script>
+</body>
+</html>
